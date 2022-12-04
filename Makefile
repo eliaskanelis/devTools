@@ -25,7 +25,7 @@ endif
 # The name of the docker image must be lowercase
 name := "$(shell basename $(CURDIR) | tr '[A-Z]' '[a-z]')"
 DOCKER_USER ?=
-DOCKER_TOKEN ?="dckr_pat_ibUbSgsfGK-K7I_uF2i1t1PMOdk"
+DOCKER_TOKEN ?=
 
 # Tag
 tag:="$(shell git rev-parse --short HEAD)"
