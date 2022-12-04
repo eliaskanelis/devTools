@@ -20,6 +20,26 @@ ARG PACKAGES="bash wget curl git \
 RUN apk update && apk add --no-cache ${PACKAGES}
 
 # ----------------------------------------------------------
+# USER
+
+ARG PUID="${UID:-1000}"
+ARG PGID="${GID:-1000}"
+ARG USERNAME="${USER:-tedi}"
+
+# Create a new user on start
+RUN addgroup -g ${PGID} ${USERNAME}
+RUN adduser -u ${PUID} \
+            -G ${USERNAME} \
+            --shell /bin/bash \
+            --disabled-password \
+            -H ${USERNAME}
+
+RUN mkdir -p /home/${USERNAME}
+RUN chown ${USERNAME}:${USERNAME} /home/${USERNAME}
+WORKDIR /home/${USERNAME}
+USER ${USERNAME}
+
+# ----------------------------------------------------------
 # Startup
 
 ENTRYPOINT ["/bin/bash"]

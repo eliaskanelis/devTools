@@ -27,6 +27,10 @@ name := "$(shell basename $(CURDIR) | tr '[A-Z]' '[a-z]')"
 DOCKER_USER ?=
 DOCKER_TOKEN ?=
 
+# User
+UID:=$(shell id -u)
+GID:=$(shell id -g)
+
 # Tag
 tag:="$(shell git rev-parse --short HEAD)"
 
@@ -97,6 +101,7 @@ run: build
             --interactive --tty --rm \
             --net=host \
             --name=${name} \
+            --user "${UID}:${GID}" \
             ${name}
 
 .PHONY: remove
