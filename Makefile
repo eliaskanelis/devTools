@@ -15,6 +15,22 @@ USERNAME:="tedicreations"
 DOCKER_IMAGE_NAME:="${USERNAME}/${NAME}"
 TAG:="v0.0.0"
 
+# Beautify output
+ifeq ("$(origin V)", "command line")
+  VERBOSE := $(V)
+endif
+ifndef VERBOSE
+  VERBOSE := 0
+endif
+
+ifeq ($(VERBOSE),1)
+  dockerBuildQuiet :=
+  Q :=
+else
+  dockerBuildQuiet := --quiet
+  Q := @
+endif
+
 # -----------------------------------------------------------------------------
 # Validations
 
@@ -32,22 +48,22 @@ all: build
 
 .PHONY: build
 build:
-	@echo "Building '${DOCKER_IMAGE_NAME}'"
-	@docker build --rm --quiet \
+	${Q}echo "Building '${DOCKER_IMAGE_NAME}'"
+	${Q}docker build --rm ${dockerBuildQuiet} \
                       -t ${DOCKER_IMAGE_NAME}:latest \
                       -t ${DOCKER_IMAGE_NAME}:${TAG} \
                       .
 
 .PHONY: push
 push:
-	@echo "Pushing '${DOCKER_IMAGE_NAME}'"
-	@docker push ${DOCKER_IMAGE_NAME}:latest
-	@docker push ${DOCKER_IMAGE_NAME}:${TAG}
+	${Q}echo "Pushing '${DOCKER_IMAGE_NAME}'"
+	${Q}docker push ${DOCKER_IMAGE_NAME}:latest
+	${Q}docker push ${DOCKER_IMAGE_NAME}:${TAG}
 
 .PHONY: run
-run:
-	@echo "Running '${DOCKER_IMAGE_NAME}' as '${NAME}'"
-	@docker run \
+run: build
+	${Q}echo "Running '${DOCKER_IMAGE_NAME}' as '${NAME}'"
+	${Q}docker run \
             --interactive --tty --rm \
             --net=host \
             --name=${NAME} \
@@ -55,12 +71,12 @@ run:
 
 .PHONY: remove
 remove:
-	@echo "Removing '${DOCKER_IMAGE_NAME}'"
-	@docker stop ${DOCKER_IMAGE_NAME}
-	@docker rm ${DOCKER_IMAGE_NAME}
+	${Q}echo "Removing '${DOCKER_IMAGE_NAME}'"
+	${Q}docker stop ${DOCKER_IMAGE_NAME}
+	${Q}docker rm ${DOCKER_IMAGE_NAME}
 
 .PHONY: delete
 delete:
-	@echo "Deleting '${DOCKER_IMAGE_NAME}'"
-	@docker image rm ${DOCKER_IMAGE_NAME}:latest
-	@docker image rm ${DOCKER_IMAGE_NAME}:${TAG}
+	${Q}echo "Deleting '${DOCKER_IMAGE_NAME}'"
+	${Q}docker image rm ${DOCKER_IMAGE_NAME}:latest
+	${Q}docker image rm ${DOCKER_IMAGE_NAME}:${TAG}

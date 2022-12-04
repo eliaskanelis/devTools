@@ -25,3 +25,7 @@ make
 ```sh
 make run
 ```
+
+### TODO
+
+List of [ideas](TODO.md)
