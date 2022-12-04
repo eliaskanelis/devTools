@@ -22,4 +22,4 @@ RUN apk update && apk add --no-cache ${PACKAGES}
 # ----------------------------------------------------------
 # Startup
 
-CMD ["/bin/bash"]
+ENTRYPOINT ["/bin/bash"]
