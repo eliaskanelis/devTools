@@ -7,13 +7,30 @@ MAKEFLAGS += --no-builtin-rules
 .DEFAULT_GOAL = all
 
 # -----------------------------------------------------------------------------
+# Validations
+
+DOCKER_EXISTS := $(shell command -v docker 2> /dev/null)
+ifndef DOCKER_EXISTS
+$(error "Please install 'docker'!")
+endif
+
+GIT_EXISTS := $(shell command -v git 2> /dev/null)
+ifndef DOCKER_EXISTS
+$(error "Please install 'git'!")
+endif
+
+# -----------------------------------------------------------------------------
 # Configs
 
 # The name of the docker image must be lowercase
 NAME:="$(shell basename $(CURDIR) | tr '[A-Z]' '[a-z]')"
 USERNAME:="tedicreations"
 DOCKER_IMAGE_NAME:="${USERNAME}/${NAME}"
-TAG:="v0.0.0"
+
+# Tag
+arch:=$(shell uname --processor)
+git_comit:="$(shell git rev-parse --short HEAD)"
+TAG:="${arch}_${git_comit}"
 
 # Beautify output
 ifeq ("$(origin V)", "command line")
@@ -32,14 +49,6 @@ else
 endif
 
 # -----------------------------------------------------------------------------
-# Validations
-
-DOCKER_EXISTS := $(shell command -v docker 2> /dev/null)
-ifndef DOCKER_EXISTS
-$(error "Please install 'docker'!")
-endif
-
-# -----------------------------------------------------------------------------
 # Rules
 
 .PHONY: all
@@ -50,15 +59,15 @@ all: build
 build:
 	${Q}echo "Building '${DOCKER_IMAGE_NAME}'"
 	${Q}docker build --rm ${dockerBuildQuiet} \
-                      -t ${DOCKER_IMAGE_NAME}:latest \
                       -t ${DOCKER_IMAGE_NAME}:${TAG} \
+                      -t ${DOCKER_IMAGE_NAME}:latest \
                       .
 
 .PHONY: push
 push:
 	${Q}echo "Pushing '${DOCKER_IMAGE_NAME}'"
-	${Q}docker push ${DOCKER_IMAGE_NAME}:latest
 	${Q}docker push ${DOCKER_IMAGE_NAME}:${TAG}
+	${Q}docker push ${DOCKER_IMAGE_NAME}:latest
 
 .PHONY: run
 run: build
@@ -78,5 +87,5 @@ remove:
 .PHONY: delete
 delete:
 	${Q}echo "Deleting '${DOCKER_IMAGE_NAME}'"
-	${Q}docker image rm ${DOCKER_IMAGE_NAME}:latest
 	${Q}docker image rm ${DOCKER_IMAGE_NAME}:${TAG}
+	${Q}docker image rm ${DOCKER_IMAGE_NAME}:latest
