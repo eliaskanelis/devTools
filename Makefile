@@ -23,14 +23,15 @@ endif
 # Configs
 
 # The name of the docker image must be lowercase
-NAME:="$(shell basename $(CURDIR) | tr '[A-Z]' '[a-z]')"
-USERNAME:="tedicreations"
-DOCKER_IMAGE_NAME:="${USERNAME}/${NAME}"
+name := "$(shell basename $(CURDIR) | tr '[A-Z]' '[a-z]')"
+DOCKER_USER ?=
+DOCKER_TOKEN ?="dckr_pat_ibUbSgsfGK-K7I_uF2i1t1PMOdk"
 
 # Tag
-arch:=$(shell uname --processor)
-git_comit:="$(shell git rev-parse --short HEAD)"
-TAG:="${arch}_${git_comit}"
+tag:="$(shell git rev-parse --short HEAD)"
+
+# Repository info
+isGitRepoDirty := "$(shell git diff --quiet 2> /dev/null )"
 
 # Beautify output
 ifeq ("$(origin V)", "command line")
@@ -57,35 +58,53 @@ all: build
 
 .PHONY: build
 build:
-	${Q}echo "Building '${DOCKER_IMAGE_NAME}'"
+	${Q}echo "Building '${name}'"
 	${Q}docker build --rm ${dockerBuildQuiet} \
-                      -t ${DOCKER_IMAGE_NAME}:${TAG} \
-                      -t ${DOCKER_IMAGE_NAME}:latest \
+                      -t ${name}:${tag} \
+                      -t ${name}:latest \
                       .
 
 .PHONY: push
-push:
-	${Q}echo "Pushing '${DOCKER_IMAGE_NAME}'"
-	${Q}docker push ${DOCKER_IMAGE_NAME}:${TAG}
-	${Q}docker push ${DOCKER_IMAGE_NAME}:latest
+push: build
+ifneq ("${isGitRepoDirty}","")
+	${Q}echo "Repository is dirty."
+	exit 1
+endif
+	${Q}echo "Logging to dockerhub"
+ifeq ("${DOCKER_USER}","")
+	${Q}echo "DOCKER_USERNAME is not set"
+	exit 1
+endif
+ifeq ("${DOCKER_TOKEN}","")
+	${Q}echo "Docker registry password:"
+	${Q}docker login --username ${DOCKER_USER}
+else
+	${Q}echo "${DOCKER_TOKEN}" | docker login --username ${DOCKER_USER} --password-stdin
+endif
+	${Q}echo "Applying dockerhub tags to the local image"
+	${Q}docker tag ${name}:${tag} ${DOCKER_USER}/${name}:${tag}
+	${Q}docker tag ${name}:latest ${DOCKER_USER}/${name}:latest
+	${Q}echo "Pushing '${DOCKER_USER}/${name}'"
+	${Q}docker push ${DOCKER_USER}/${name}:${tag}
+	${Q}docker push ${DOCKER_USER}/${name}:latest
 
 .PHONY: run
 run: build
-	${Q}echo "Running '${DOCKER_IMAGE_NAME}' as '${NAME}'"
+	${Q}echo "Running '${name}'"
 	${Q}docker run \
             --interactive --tty --rm \
             --net=host \
-            --name=${NAME} \
-            ${DOCKER_IMAGE_NAME}
+            --name=${name} \
+            ${name}
 
 .PHONY: remove
 remove:
-	${Q}echo "Removing '${DOCKER_IMAGE_NAME}'"
-	${Q}docker stop ${DOCKER_IMAGE_NAME}
-	${Q}docker rm ${DOCKER_IMAGE_NAME}
+	${Q}echo "Removing '${name}'"
+	${Q}docker stop ${name}
+	${Q}docker rm ${name}
 
 .PHONY: delete
 delete:
-	${Q}echo "Deleting '${DOCKER_IMAGE_NAME}'"
-	${Q}docker image rm ${DOCKER_IMAGE_NAME}:${TAG}
-	${Q}docker image rm ${DOCKER_IMAGE_NAME}:latest
+	${Q}echo "Deleting '${name}'"
+	${Q}docker image rm ${name}:${tag}
+	${Q}docker image rm ${name}:latest
