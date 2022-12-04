@@ -31,7 +31,7 @@ DOCKER_TOKEN ?=
 tag:="$(shell git rev-parse --short HEAD)"
 
 # Repository info
-isGitRepoDirty := "$(shell git diff --quiet 2> /dev/null )"
+isGitRepoDirty := "$(shell git status --porcelain)"
 
 # Beautify output
 ifeq ("$(origin V)", "command line")
@@ -66,10 +66,12 @@ build:
 
 .PHONY: push
 push: build
-ifneq ("${isGitRepoDirty}","")
-	${Q}echo "Repository is dirty."
-	exit 1
-endif
+	${Q}status=$$(git status --porcelain); \
+	if [ ! -z "$${status}" ]; \
+	then \
+		echo "ERROR: Working directory is dirty!"; \
+		exit 1; \
+	fi
 	${Q}echo "Logging to dockerhub"
 ifeq ("${DOCKER_USER}","")
 	${Q}echo "DOCKER_USERNAME is not set"
