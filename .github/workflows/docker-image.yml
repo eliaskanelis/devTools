@@ -1,0 +1,25 @@
+name: Push to DockerHub
+
+on:
+  push:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install
+      run: sudo apt-get install -y make git
+    - name: Docker login
+      env:
+        DOCKER_USER: ${{secrets.DOCKER_USER}}
+        DOCKER_TOKEN: ${{secrets.DOCKER_TOKEN}}
+      run: echo ${DOCKER_TOKEN} | docker login --username ${DOCKER_USER} --password-stdin
+    - name: Build the Docker image
+      run: make build
+    - name: Docker Push
+      run: make push
