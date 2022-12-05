@@ -10,14 +10,16 @@ MAINTAINER Kanelis Ilias <hkanelhs@yahoo.gr>
 
 # https://pkgs.alpinelinux.org/packages
 ARG PACKAGES="bash wget curl git \
-              build-base clang gcc-arm-none-eabi \
-              pahole ccache valgrind dos2unix \
+              build-base cmake clang gcc-arm-none-eabi \
+              cpputest pahole ccache valgrind dos2unix \
               astyle \
               python3 py3-pip py3-virtualenv \
               shellcheck cppcheck \
               doxygen graphviz"
 
 RUN apk update && apk add --no-cache ${PACKAGES}
+
+ENV CPPUTEST_HOME "/usr/"
 
 # ----------------------------------------------------------
 # USER
