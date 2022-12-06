@@ -1,8 +1,10 @@
 # ----------------------------------------------------------
 # Base image
 
+ARG VERSION="3.17.0"
+
 # https://hub.docker.com/_/alpine
-FROM alpine:3.17.0
+FROM alpine:${VERSION}
 MAINTAINER Kanelis Ilias <hkanelhs@yahoo.gr>
 
 # ----------------------------------------------------------
@@ -44,5 +46,5 @@ USER ${USERNAME}
 # ----------------------------------------------------------
 # Startup
 
-ENTRYPOINT ["/bin/sh", "-c"]
-CMD ["bash"]
+ENTRYPOINT ["/bin/bash", "-l", "-c"]
+CMD ["bash", "-i"]
