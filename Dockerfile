@@ -44,4 +44,5 @@ USER ${USERNAME}
 # ----------------------------------------------------------
 # Startup
 
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/bin/sh", "-c"]
+CMD ["bash"]
