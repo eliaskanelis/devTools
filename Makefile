@@ -63,7 +63,7 @@ all: build
 .PHONY: build
 build:
 	${Q}echo "Building '${name}'"
-	${Q}docker build --rm ${dockerBuildQuiet} \
+	${Q}docker buildx build --rm ${dockerBuildQuiet} \
                       -t ${name}:${tag} \
                       -t ${name}:latest \
                       .
