@@ -17,12 +17,14 @@ MAINTAINER Kanelis Ilias <hkanelhs@yahoo.gr>
 
 # https://pkgs.alpinelinux.org/packages
 ARG PACKAGES="bash wget curl git \
-              build-base cmake clang gcc-arm-none-eabi \
-              cpputest pahole ccache valgrind dos2unix \
-              astyle \
-              python3 py3-pip py3-virtualenv \
-              shellcheck cppcheck \
-              doxygen graphviz"
+    build-base ncurses \
+    cmake clang \
+    gcc-arm-none-eabi newlib-arm-none-eabi\
+    cpputest pahole ccache valgrind dos2unix \
+    astyle \
+    python3 py3-pip py3-virtualenv \
+    shellcheck cppcheck \
+    doxygen graphviz"
 
 RUN apk update && apk add --no-cache ${PACKAGES}
 
@@ -51,5 +53,6 @@ USER ${USERNAME}
 # -----------------------------------------------------------------------------
 # Startup
 
+WORKDIR /workdir
 ENTRYPOINT ["/bin/bash", "-l", "-c"]
 CMD ["/bin/bash", "-i"]
