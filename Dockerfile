@@ -2,24 +2,42 @@
 # #############################################################################
 # Base image
 
+# https://hub.docker.com/_/alpine
 ARG VERSION="3.17.0"
+
+FROM alpine:${VERSION} AS base
+
+MAINTAINER Kanelis Ilias <hkanelhs@yahoo.gr>
+
+# #############################################################################
+# #############################################################################
+# arm-none-eabi
+
+FROM base AS arm-none-eabi_builder
+
+# https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
+ARG ARM_NANO_EABI_VERSION=12.2.mpacbti-rel1
+
+WORKDIR /workdir
+
+RUN wget -qO- \
+    https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_NANO_EABI_VERSION}/binrel/arm-gnu-toolchain-${ARM_NANO_EABI_VERSION}-$(uname -m)-arm-none-eabi.tar.xz \
+    | tar xvJf - --strip-components=1
 
 # #############################################################################
 # #############################################################################
 # Production image
 
-# https://hub.docker.com/_/alpine
-FROM alpine:${VERSION}
-MAINTAINER Kanelis Ilias <hkanelhs@yahoo.gr>
+FROM base
 
 # -----------------------------------------------------------------------------
 # Packages to install
 
 # https://pkgs.alpinelinux.org/packages
 ARG PACKAGES="bash wget curl git \
+    gcompat \
     build-base ncurses \
     cmake clang \
-    gcc-arm-none-eabi newlib-arm-none-eabi\
     cpputest pahole ccache valgrind dos2unix \
     astyle \
     python3 py3-pip py3-virtualenv \
@@ -28,7 +46,16 @@ ARG PACKAGES="bash wget curl git \
 
 RUN apk update && apk add --no-cache ${PACKAGES}
 
+# -----------------------------------------------------------------------------
+# cpputest
+
 ENV CPPUTEST_HOME "/usr/"
+
+# -----------------------------------------------------------------------------
+# arm-none-eabi
+
+COPY --from=arm-none-eabi_builder /workdir /arm-none-eabi
+ENV PATH=/arm-none-eabi/bin/:${PATH}
 
 # -----------------------------------------------------------------------------
 # USER
