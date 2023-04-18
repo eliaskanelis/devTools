@@ -77,6 +77,8 @@ RUN chown ${USERNAME}:${USERNAME} /home/${USERNAME}
 WORKDIR /home/${USERNAME}
 USER ${USERNAME}
 
+ENV TERM=linux
+
 # -----------------------------------------------------------------------------
 # Startup
 
