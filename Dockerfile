@@ -40,7 +40,7 @@ FROM base
 # Packages to install
 
 # https://pkgs.alpinelinux.org/packages
-ARG PACKAGES="bash wget curl git \
+ARG PACKAGES="sudo bash wget curl git \
     build-essential bc \
     cmake clang \
     cpputest pahole ccache valgrind dos2unix \
@@ -86,6 +86,7 @@ ENV PATH=/arm-none-eabi/bin/:${PATH}
 # WORKDIR /home/${USERNAME}
 # USER ${USERNAME}
 
+RUN echo "ubuntu ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/ubuntu
 USER ubuntu
 ENV TERM=linux
 
