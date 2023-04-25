@@ -41,7 +41,7 @@ FROM base
 
 # https://pkgs.alpinelinux.org/packages
 ARG PACKAGES="sudo bash wget curl git \
-    build-essential bc \
+    build-essential bc file \
     cmake clang \
     cpputest pahole ccache valgrind dos2unix \
     astyle \
