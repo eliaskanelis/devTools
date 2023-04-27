@@ -5,7 +5,6 @@
 ## Only available on Alpine edge
 
 - valgrind
-- cflow
 - lcov
 - espeak
 

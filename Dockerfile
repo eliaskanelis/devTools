@@ -46,7 +46,7 @@ ARG PACKAGES="sudo bash wget curl git \
     cpputest pahole ccache valgrind dos2unix \
     astyle \
     python3 python3-pip \
-    shellcheck cppcheck \
+    shellcheck cppcheck cflow pmccabe \
     doxygen graphviz"
 
 RUN \
