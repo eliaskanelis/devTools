@@ -5,11 +5,11 @@
 ## Usage
 
 Available from:
-- [Dockerhub](https://hub.docker.com/r/tedicreations/devtools)
-- [Github](https://github.com/TediCreations/devTools)
+- [Dockerhub](https://hub.docker.com/r/voidbuffer/devtools)
+- [Github](https://github.com/eliaskanelis/devTools)
 
 ```sh
-docker pull tedicreations/devtools
+docker pull eliaskanelis/devtools
 ```
 
 ## Development
