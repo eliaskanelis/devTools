@@ -9,7 +9,7 @@ Available from:
 - [Github](https://github.com/eliaskanelis/devTools)
 
 ```sh
-docker pull eliaskanelis/devtools
+docker pull voidbuffer/devtools
 ```
 
 ## Development

@@ -39,7 +39,6 @@ FROM base
 # -----------------------------------------------------------------------------
 # Packages to install
 
-# https://pkgs.alpinelinux.org/packages
 ARG PACKAGES="sudo bash wget curl git \
     build-essential bc file \
     cmake clang \
