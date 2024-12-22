@@ -3,7 +3,7 @@
 # Base image
 
 # https://hub.docker.com/_/alpine
-ARG VERSION="23.04"
+ARG VERSION="24.04"
 
 FROM ubuntu:${VERSION} AS base
 
@@ -14,7 +14,7 @@ FROM ubuntu:${VERSION} AS base
 FROM base AS arm-none-eabi_builder
 
 # https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
-ARG ARM_NANO_EABI_VERSION=12.2.rel1
+ARG ARM_NANO_EABI_VERSION=14.2.rel1
 
 WORKDIR /workdir
 
@@ -45,6 +45,7 @@ ARG PACKAGES="sudo bash wget curl git \
     cpputest pahole ccache valgrind dos2unix \
     astyle \
     python3 python3-pip python3-venv \
+    clang-format clang-tidy \
     shellcheck cppcheck cflow pmccabe \
     doxygen graphviz"
 
@@ -57,7 +58,7 @@ RUN \
 # -----------------------------------------------------------------------------
 # cpputest
 
-ENV CPPUTEST_HOME "/usr/"
+ENV CPPUTEST_HOME="/usr/"
 
 # -----------------------------------------------------------------------------
 # arm-none-eabi
