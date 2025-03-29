@@ -1,8 +1,10 @@
+#syntax=docker/dockerfile:1.12.1
+
 # #############################################################################
 # #############################################################################
 # Base image
 
-# https://hub.docker.com/_/alpine
+# https://hub.docker.com/_/ubuntu
 ARG VERSION="24.04"
 
 FROM ubuntu:${VERSION} AS base
