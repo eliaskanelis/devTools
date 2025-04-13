@@ -5,7 +5,7 @@
 # Base image
 
 # https://hub.docker.com/_/ubuntu
-ARG VERSION="24.04"
+ARG VERSION="22.04"
 
 FROM ubuntu:${VERSION} AS base
 
@@ -46,11 +46,12 @@ RUN \
     apt-get install --yes --no-install-recommends wget gnupg2 ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && \
+RUN \
+    . /etc/os-release && \
     dpkg --add-architecture i386 && \
+    apt-get update && \
     mkdir -p /etc/apt/keyrings && \
     wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key && \
-    . /etc/os-release && \
     echo "deb [signed-by=/etc/apt/keyrings/winehq-archive.key] https://dl.winehq.org/wine-builds/ubuntu/ ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/winehq.list && \
     apt-get update && \
     apt-get install --yes --no-install-recommends winehq-stable && \
@@ -118,6 +119,7 @@ COPY --from=wine_builder /usr/lib/ /usr/lib/
 # WORKDIR /home/${USERNAME}
 # USER ${USERNAME}
 
+RUN useradd -ms /bin/bash ubuntu
 RUN echo "ubuntu ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/ubuntu
 USER ubuntu
 ENV TERM=linux
