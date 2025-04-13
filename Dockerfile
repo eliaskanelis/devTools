@@ -37,6 +37,26 @@ RUN set -eux; \
 
 # #############################################################################
 # #############################################################################
+# wine
+
+FROM base AS wine_builder
+
+RUN \
+    apt-get update && \
+    apt-get install --yes --no-install-recommends wget gnupg2 ca-certificates
+
+RUN \
+    . /etc/os-release && \
+    dpkg --add-architecture i386 && \
+    wget -qO - https://dl.winehq.org/wine-builds/winehq.key | apt-key add - && \
+    echo "deb https://dl.winehq.org/wine-builds/ubuntu/ ${VERSION_CODENAME} main" | tee /etc/apt/sources.list.d/winehq.list && \
+    apt-get update && \
+    apt-get -y upgrade && \
+    apt-get install --yes --no-install-recommends winehq-stable && \
+    rm -rf /var/lib/apt/lists/*
+
+# #############################################################################
+# #############################################################################
 # Production image
 
 FROM base
@@ -72,6 +92,13 @@ COPY --from=arm-none-eabi_builder /workdir /arm-none-eabi
 ENV PATH=/arm-none-eabi/bin/:${PATH}
 
 # -----------------------------------------------------------------------------
+# wine
+
+COPY --from=wine_builder /opt/wine-stable/ /opt/wine-stable/
+COPY --from=wine_builder /usr/bin/ /usr/bin/
+COPY --from=wine_builder /usr/lib/ /usr/lib/
+
+# -----------------------------------------------------------------------------
 # USER
 
 # ARG PUID="${UID:-1000}"
@@ -94,6 +121,18 @@ ENV PATH=/arm-none-eabi/bin/:${PATH}
 RUN echo "ubuntu ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/ubuntu
 USER ubuntu
 ENV TERM=linux
+
+# -----------------------------------------------------------------------------
+# Wine
+
+# Set Wine environment variables for headless operation
+ENV WINEDEBUG=-all
+ENV DISPLAY=:0
+ENV XDG_RUNTIME_DIR=/tmp
+# ENV WINEPREFIX=/home/ubuntu/.wine
+
+# Create the Wine prefix (virtual Windows environment)
+RUN wineboot --init
 
 # -----------------------------------------------------------------------------
 # Startup
