@@ -22,15 +22,18 @@ WORKDIR /workdir
 
 RUN \
     apt-get update && \
-    apt-get -y upgrade && \
-    apt-get install -y bash wget tar xz-utils && \
+    apt-get install --yes --no-install-recommends wget ca-certificates xz-utils && \
     rm -rf /var/lib/apt/lists/*
 
 ARG TARGETARCH
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN wget -qO- \
-    https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_NANO_EABI_VERSION}/binrel/arm-gnu-toolchain-${ARM_NANO_EABI_VERSION}-$(uname -m)-arm-none-eabi.tar.xz \
-    | tar xvJf - --strip-components=1
+RUN set -eux; \
+    case "${TARGETARCH}" in \
+        amd64) ARCH="x86_64" ;; \
+        arm64) ARCH="aarch64" ;; \
+        *) echo "Unsupported architecture: ${TARGETARCH}" >&2; exit 1 ;; \
+    esac; \
+    wget -qO- "https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_NANO_EABI_VERSION}/binrel/arm-gnu-toolchain-${ARM_NANO_EABI_VERSION}-${ARCH}-arm-none-eabi.tar.xz" \
+    | tar -xJ --strip-components=1
 
 # #############################################################################
 # #############################################################################
@@ -54,7 +57,7 @@ ARG PACKAGES="sudo bash wget curl git \
 RUN \
     apt-get update && \
     apt-get -y upgrade && \
-    apt-get install -y ${PACKAGES} && \
+    apt-get install --yes --no-install-recommends ${PACKAGES} && \
     rm -rf /var/lib/apt/lists/*
 
 # -----------------------------------------------------------------------------
