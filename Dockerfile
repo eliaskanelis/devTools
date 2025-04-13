@@ -43,7 +43,8 @@ FROM base AS wine_builder
 
 RUN \
     apt-get update && \
-    apt-get install --yes --no-install-recommends wget gnupg2 ca-certificates
+    apt-get install --yes --no-install-recommends wget gnupg2 ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && \
     dpkg --add-architecture i386 && \
@@ -52,7 +53,6 @@ RUN apt-get update && \
     . /etc/os-release && \
     echo "deb [signed-by=/etc/apt/keyrings/winehq-archive.key] https://dl.winehq.org/wine-builds/ubuntu/ ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/winehq.list && \
     apt-get update && \
-    apt-get -y upgrade && \
     apt-get install --yes --no-install-recommends winehq-stable && \
     rm -rf /var/lib/apt/lists/*
 
@@ -77,7 +77,6 @@ ARG PACKAGES="sudo bash wget curl git \
 
 RUN \
     apt-get update && \
-    apt-get -y upgrade && \
     apt-get install --yes --no-install-recommends ${PACKAGES} && \
     rm -rf /var/lib/apt/lists/*
 
