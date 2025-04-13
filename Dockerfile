@@ -45,11 +45,12 @@ RUN \
     apt-get update && \
     apt-get install --yes --no-install-recommends wget gnupg2 ca-certificates
 
-RUN \
-    . /etc/os-release && \
+RUN apt-get update && \
     dpkg --add-architecture i386 && \
-    wget -qO - https://dl.winehq.org/wine-builds/winehq.key | apt-key add - && \
-    echo "deb https://dl.winehq.org/wine-builds/ubuntu/ ${VERSION_CODENAME} main" | tee /etc/apt/sources.list.d/winehq.list && \
+    mkdir -p /etc/apt/keyrings && \
+    wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key && \
+    . /etc/os-release && \
+    echo "deb [signed-by=/etc/apt/keyrings/winehq-archive.key] https://dl.winehq.org/wine-builds/ubuntu/ ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/winehq.list && \
     apt-get update && \
     apt-get -y upgrade && \
     apt-get install --yes --no-install-recommends winehq-stable && \
@@ -137,6 +138,6 @@ RUN wineboot --init
 # -----------------------------------------------------------------------------
 # Startup
 
-WORKDIR /workdir
+WORKDIR /workspace
 ENTRYPOINT ["/bin/bash", "-l", "-c"]
 CMD ["/bin/bash", "-i"]

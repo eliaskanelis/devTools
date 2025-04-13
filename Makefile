@@ -7,6 +7,12 @@ MAKEFLAGS += --no-builtin-rules
 .DEFAULT_GOAL = all
 
 # -----------------------------------------------------------------------------
+# XServer authentication
+
+XSOCK=/tmp/.X11-unix
+XCOOKIE=$(shell xauth list)
+
+# -----------------------------------------------------------------------------
 # Validations
 
 DOCKER_EXISTS := $(shell command -v docker 2> /dev/null)
@@ -102,6 +108,10 @@ run: build
             --net=host \
             --name=${name} \
             --user "${UID}:${GID}" \
+            -e DISPLAY="${DISPLAY}" \
+            -e XCOOKIE="${XCOOKIE}" \
+            --volume=${XSOCK}:${XSOCK}:rw \
+            --volume=${PWD}:/workspace/:rw \
             ${name}
 
 .PHONY: remove
