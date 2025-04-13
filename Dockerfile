@@ -5,7 +5,7 @@
 # Base image
 
 # https://hub.docker.com/_/ubuntu
-ARG VERSION="22.04"
+ARG VERSION="24.04"
 
 FROM ubuntu:${VERSION} AS base
 
@@ -102,26 +102,18 @@ COPY --from=wine_builder /usr/lib/ /usr/lib/
 # -----------------------------------------------------------------------------
 # USER
 
-# ARG PUID="${UID:-1000}"
-# ARG PGID="${GID:-1000}"
-# ARG USERNAME="${USER:-tedi}"
+ARG USERNAME="tedi"
 
-# Create a new user on start
-# RUN addgroup -g ${PGID} ${USERNAME}
-# RUN adduser -u ${PUID} \
-#             -G ${USERNAME} \
-#             --shell /bin/bash \
-#             --disabled-password \
-#             -H ${USERNAME}
+# Rename default user
 
-# RUN mkdir -p /home/${USERNAME}
-# RUN chown ${USERNAME}:${USERNAME} /home/${USERNAME}
-# WORKDIR /home/${USERNAME}
-# USER ${USERNAME}
 
-RUN useradd -ms /bin/bash ubuntu
-RUN echo "ubuntu ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/ubuntu
-USER ubuntu
+
+RUN usermod -l ${USERNAME} ubuntu && \
+    groupmod -n ${USERNAME} ubuntu && \
+    usermod -d /home/${USERNAME} -m ${USERNAME}
+
+RUN echo "${USERNAME} ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/${USERNAME}
+USER ${USERNAME}
 ENV TERM=linux
 
 # -----------------------------------------------------------------------------
@@ -131,7 +123,7 @@ ENV TERM=linux
 ENV WINEDEBUG=-all
 ENV DISPLAY=:0
 ENV XDG_RUNTIME_DIR=/tmp
-# ENV WINEPREFIX=/home/ubuntu/.wine
+# ENV WINEPREFIX=/home/${USERNAME}/.wine
 
 # Create the Wine prefix (virtual Windows environment)
 RUN wineboot --init
